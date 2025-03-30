@@ -1,5 +1,3 @@
-'use strict';
-
 import { trace } from '@opentelemetry/api';
 
 // Not functionally required but gives some insight what happens behind the scenes

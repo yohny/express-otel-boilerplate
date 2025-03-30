@@ -34,6 +34,16 @@ app.get('/test/:scenario', async (req: Request, res: Response) => {
   res.status(200).json(data);
 });
 
+function getRandomNumber(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+app.get('/rolldice', (req, res) => {
+  const result = getRandomNumber(1, 6);
+  logger.info(`Rolled dice {dice}`, { dice: result });
+  res.send(result.toString());
+});
+
 // simulate an endpoint that returns valid data
 // start listening
 app.listen(port, () => {

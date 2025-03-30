@@ -4,7 +4,6 @@ dotenv.config();
 
 // setup Instrumentation
 import { setupInstrumentation } from './instrumentation';
-
 setupInstrumentation();
 
 // regular express stuff
@@ -28,7 +27,7 @@ app.post('/valid', async (req: Request, res: Response) => {
 
 // simulate a broken endpoint
 app.post('/invalid', async (req: Request, res: Response) => {
-  logger.info('invalid scenario invoked');
+  logger.warn('invalid scenario invoked');
   // add a delay of 3 seconds before sending an error response
   await new Promise((resolve) => setTimeout(resolve, 3000));
   // send 400 status code and original payload in data attribute

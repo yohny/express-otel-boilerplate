@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // setup Instrumentation
-import { setupInstrumentation } from './instrumentation';
+import { setupInstrumentationAuto as setupInstrumentation } from './instrumentation';
 setupInstrumentation();
 
 // regular express stuff

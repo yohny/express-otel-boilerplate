@@ -1,7 +1,7 @@
 import { trace, context, propagation, Span, SpanStatusCode } from '@opentelemetry/api';
 import logger from './logger';
 
-const serviceName = process.env.SERVICE_NAME || 'service1';
+const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';
 
 // default headers for JSON
 const defaultHeaders = {
@@ -9,18 +9,9 @@ const defaultHeaders = {
   'Content-Type': 'application/json;charset=UTF-8',
 };
 
-/**
- * Make an API call with tracing.
- *
- * @param {Object} options - The options for the API call.
- * @param {string} options.method - The HTTP method.
- * @param {string} options.url - The URL for the API call.
- * @param {Object} options.payload - The payload for the API call.
- * @return {Promise<any>} A promise that resolves with the API response.
- */
 export const makeAPICall = async (options: { method: string; url: string; payload: object }) => {
   const tracer = trace.getTracer(serviceName);
-  return tracer.startActiveSpan('make API call', async (span: Span) => {
+  return tracer.startActiveSpan('make API call', async (span) => {
     try {
       const traceHeaders = {};
       // inject context to trace headers for propagtion to the next service

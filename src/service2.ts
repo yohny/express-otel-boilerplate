@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // setup Instrumentation
-import { setupInstrumentation } from './instrumentation';
-setupInstrumentation();
+import { setupInstrumentationAuto } from './instrumentation';
+setupInstrumentationAuto();
 
 // regular express stuff
 import express, { Express, Request, Response } from 'express';

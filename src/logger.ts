@@ -1,4 +1,3 @@
-import { SeqTransport } from '@datalust/winston-seq';
 import winston from 'winston';
 
 const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';
@@ -16,16 +15,7 @@ const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.simple(),
     }),
-    //this will get logs into Seq, but not using OTel
-    new SeqTransport({
-      serverUrl: 'http://localhost:5341',
-      // apiKey: 'your-api-key',
-      onError: (e) => {
-        console.error('seq error', e);
-      },
-      handleExceptions: true,
-      handleRejections: true,
-    }),
+    // new OpenTelemetryTransportV3() // no need to add explicityl, its added automaticalyy if @opentelemetry/winston-transport is installed
   ],
 });
 

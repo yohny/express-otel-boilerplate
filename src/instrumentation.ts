@@ -1,5 +1,5 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { resourceFromAttributes } from '@opentelemetry/resources';
@@ -8,28 +8,29 @@ import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston';
 
+// Not functionally required but gives some insight what happens behind the scenes
+// import { trace, diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+
 const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';
 
-export const setupInstrumentationAuto = () => {
+export const setupInstrumentation = () => {
   const sdk = new NodeSDK({
     resource: resourceFromAttributes({
       [ATTR_SERVICE_NAME]: serviceName,
       [ATTR_SERVICE_VERSION]: '0.0.1',
+      'deployment.environment': 'development',
     }),
     traceExporter: new OTLPTraceExporter({
-      // optional - default url is http://localhost:4318/v1/traces
-      url: 'http://localhost:5341/ingest/otlp/v1/traces', // send traces to Seq
-      // optional - collection of custom headers to be sent with each request, empty by default
-      headers: {},
+      // send traces to Grafana Alloy Collector running locally, url not set as Alloy runs on default https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options
+      //url: 'http://localhost:4317',
     }),
     metricReader: new PeriodicExportingMetricReader({
-      exporter: new ConsoleMetricExporter(), //Seq does not seem to be able to consuem metrics or do anything with them, so we put them in console
-      //   exporter: new OTLPMetricExporter({
-      //     url: '<your-otlp-endpoint>/v1/metrics', // url is optional and can be omitted - default is http://localhost:4318/v1/metrics
-      //     headers: {}, // an optional object containing custom headers to be sent with each request
-      //   }),
+      exporter: new OTLPMetricExporter({
+        // send traces to Grafana Alloy Collector running locally, url not set as Alloy runs on default endpoint https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options
+        //url: 'http://localhost:4317'
+      }),
     }),
-
     // with Auto instrumentation the distributed tracing between service1 and service2 does not work for some reason
     // even though it should result into the same instrumentations as manually listed
     //instrumentations: [getNodeAutoInstrumentations()],
@@ -37,19 +38,9 @@ export const setupInstrumentationAuto = () => {
       // Express instrumentation expects HTTP layer to be instrumented
       new HttpInstrumentation(),
       new ExpressInstrumentation(),
-      new WinstonInstrumentation({
-        // Optional hook to insert additional context to log metadata.
-        // Called after trace context is injected to metadata.
-        logHook: (span, record) => {
-          record['resource.service.name'] = serviceName;
-        },
-      }),
+      new WinstonInstrumentation(),
     ],
   });
 
   sdk.start();
 };
-
-// Not functionally required but gives some insight what happens behind the scenes
-// import { trace, diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
-// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);

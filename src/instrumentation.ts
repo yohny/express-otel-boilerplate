@@ -9,8 +9,8 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston';
 
 // Not functionally required but gives some insight what happens behind the scenes
-// import { trace, diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
-// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
 
 const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';
 
@@ -33,11 +33,12 @@ export const setupInstrumentation = () => {
     }),
     // with Auto instrumentation the distributed tracing between service1 and service2 does not work for some reason
     // even though it should result into the same instrumentations as manually listed
-    //instrumentations: [getNodeAutoInstrumentations()],
+    // instrumentations: [getNodeAutoInstrumentations()],
     instrumentations: [
       // Express instrumentation expects HTTP layer to be instrumented
       new HttpInstrumentation(),
       new ExpressInstrumentation(),
+      // since @opentelemetry/winston-transport got installed there are no native traces from express (middleware traces), but logs are sent
       new WinstonInstrumentation(),
     ],
   });

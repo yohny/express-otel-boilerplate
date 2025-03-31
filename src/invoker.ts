@@ -1,4 +1,4 @@
-import { trace, context, propagation, Span, SpanStatusCode } from '@opentelemetry/api';
+import { trace, context, propagation, SpanStatusCode } from '@opentelemetry/api';
 import logger from './logger';
 
 const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';

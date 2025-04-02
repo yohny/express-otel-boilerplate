@@ -27,7 +27,7 @@ export const setupInstrumentation = () => {
     }),
     // with Auto instrumentation the distributed tracing between service1 and service2 does not work for some reason
     // even though it should result into the same instrumentations as manually listed
-    // instrumentations: getNodeAutoInstrumentations(),
+    // instrumentations: [getNodeAutoInstrumentations()],
     instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation(), new WinstonInstrumentation()],
   });
 

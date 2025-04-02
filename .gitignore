@@ -20,4 +20,3 @@ node_modules
 *.iml
 dist
 test-results.xml
-.env

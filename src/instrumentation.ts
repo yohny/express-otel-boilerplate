@@ -12,7 +12,7 @@ import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
 
-const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';
+const serviceName = process.env.SERVICE_NAME || 'unknown-service';
 
 export const setupInstrumentation = () => {
   const sdk = new NodeSDK({
@@ -21,26 +21,14 @@ export const setupInstrumentation = () => {
       [ATTR_SERVICE_VERSION]: '0.0.1',
       'deployment.environment': 'development',
     }),
-    traceExporter: new OTLPTraceExporter({
-      // send traces to Grafana Alloy Collector running locally, url not set as Alloy runs on default https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options
-      //url: 'http://localhost:4317',
-    }),
+    traceExporter: new OTLPTraceExporter(),
     metricReader: new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter({
-        // send traces to Grafana Alloy Collector running locally, url not set as Alloy runs on default endpoint https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options
-        //url: 'http://localhost:4317'
-      }),
+      exporter: new OTLPMetricExporter(),
     }),
     // with Auto instrumentation the distributed tracing between service1 and service2 does not work for some reason
     // even though it should result into the same instrumentations as manually listed
-    // instrumentations: [getNodeAutoInstrumentations()],
-    instrumentations: [
-      // Express instrumentation expects HTTP layer to be instrumented
-      new HttpInstrumentation(),
-      new ExpressInstrumentation(),
-      // since @opentelemetry/winston-transport got installed there are no native traces from express (middleware traces), but logs are sent
-      new WinstonInstrumentation(),
-    ],
+    // instrumentations: getNodeAutoInstrumentations(),
+    instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation(), new WinstonInstrumentation()],
   });
 
   sdk.start();

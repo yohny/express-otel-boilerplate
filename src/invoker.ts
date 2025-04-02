@@ -11,7 +11,7 @@ const defaultHeaders = {
 
 export const makeAPICall = async (options: { method: string; url: string; payload: object }) => {
   const tracer = trace.getTracer(serviceName);
-  return tracer.startActiveSpan('make API call', async (span) => {
+  return tracer.startActiveSpan('API call span', async (span) => {
     try {
       const traceHeaders = {};
       // inject context to trace headers for propagtion to the next service
@@ -27,7 +27,7 @@ export const makeAPICall = async (options: { method: string; url: string; payloa
         body: JSON.stringify(options.payload),
       };
 
-      logger.info(`API Call: ${options.method} ${options.url}, spanId[${span.spanContext().spanId}]`);
+      logger.info(`API Call invoke: ${options.method} ${options.url}, spanId=${span.spanContext().spanId}`);
       const response: Response = await fetch(requestUrl, requestOptions);
       // fetch does not error on HTTP 400 > 600, hence explicitly break
       if (!response.ok) throw new Error(response.statusText);
@@ -40,7 +40,7 @@ export const makeAPICall = async (options: { method: string; url: string; payloa
         code: SpanStatusCode.ERROR,
         message: errorMessage,
       });
-      logger.error(`API Call Error: ${options.method} ${options.url}, Error: ${errorMessage}`);
+      logger.error(`API Call error: ${options.method} ${options.url}`, error);
       // throw error;
     } finally {
       span.end();

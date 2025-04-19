@@ -4,9 +4,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 // Not functionally required but gives some insight what happens behind the scenes
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
@@ -25,10 +23,8 @@ export const setupInstrumentation = () => {
     metricReader: new PeriodicExportingMetricReader({
       exporter: new OTLPMetricExporter(),
     }),
-    // with Auto instrumentation the distributed tracing between service1 and service2 does not work for some reason
-    // even though it should result into the same instrumentations as manually listed
-    // instrumentations: [getNodeAutoInstrumentations()],
-    instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation(), new WinstonInstrumentation()],
+    instrumentations: [getNodeAutoInstrumentations()],
+    //instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation(), new WinstonInstrumentation()],
   });
 
   sdk.start();

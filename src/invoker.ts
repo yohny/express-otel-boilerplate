@@ -1,4 +1,4 @@
-import { trace, context, propagation, SpanStatusCode } from '@opentelemetry/api';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import logger from './logger';
 
 const serviceName = process.env.SERVICE_NAME || 'unknown-service-wtf';
@@ -13,16 +13,11 @@ export const makeAPICall = async (options: { method: string; url: string; payloa
   const tracer = trace.getTracer(serviceName);
   return tracer.startActiveSpan('API call span', async (span) => {
     try {
-      const traceHeaders = {};
-      // inject context to trace headers for propagtion to the next service
-      propagation.inject(context.active(), traceHeaders);
-
       const requestUrl = `${process.env.SERVICE2_ENDPOINT}${options.url}`;
       const requestOptions = {
         method: options.method,
         headers: {
           ...defaultHeaders,
-          ...traceHeaders,
         },
         body: JSON.stringify(options.payload),
       };
